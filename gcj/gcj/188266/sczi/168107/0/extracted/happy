@@ -1,0 +1,31 @@
+#!/usr/bin/perl -w
+
+use Math::BaseCalc
+$calc=new Math::BaseCalc(digits=>[0..9]);
+
+sub happy {
+    my ($num,$base)=@_;
+    return $happy->{$base}->{$num} if exists $happy->{$base}->{$num};
+    $ssd=0;
+    $ssd+=$_**2 for split //,$num;
+    if($ssd==1) { $happy->{$base}->{$num}=1; }
+    else {
+        $happy->{$base}->{$num}=0;
+        $happy->{$base}->{$num}=&happy($calc->to_base($ssd),$base);
+    }
+    $happy->{$base}->{$num};
+}
+
+$T=<>;
+for(1..$T) {
+    @bs=split /\D/,<>;
+    I: for($i=2;;$i++) {
+        for(@bs) {
+            $calc->digits([0..$_-1]);
+            next I if !happy($calc->to_base($i),$_);
+        }
+        print "Case #$_: $i\n";
+        last;
+    }
+}
+

@@ -1,0 +1,77 @@
+#include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <sstream>
+#include <set>
+#include <algorithm>
+
+using namespace std;
+
+char s[1024];
+
+vector<int> BASE;
+
+set<int> S;
+
+vector<int> to_base(int x, int b)
+{
+	vector<int> ret;
+	while (x)
+	{
+		ret.push_back(x % b);
+		x /= b;
+	}
+	return ret;
+}
+
+bool check_one(int x, int base)
+{
+	S.clear();
+	while (x != 1)
+	{
+		if (S.find(x) == S.end())
+			S.insert(x);
+		else
+			return false;
+		vector<int> r = to_base(x, base);
+		int t = 0;
+		for (int i = 0; i < r.size(); i++)
+			t += r[i] * r[i];
+		x = t;
+	}
+	return true;
+}
+
+bool check(int x)
+{
+	for (int i = 0; i < BASE.size(); i++)
+		if (check_one(x, BASE[i]) == false) return false;
+	return true;
+}
+
+int main()
+{
+	int T, b;
+	freopen("f:\\A-small-attempt0.in", "r", stdin);
+	freopen("f:\\A-small.out", "w", stdout);
+	scanf("%d", &T);
+	gets(s);
+	for (int t_case = 1; t_case <= T; t_case++)
+	{
+		gets(s);
+		istringstream is(s);
+		BASE.clear();
+		while (is >> b)
+			BASE.push_back(b);
+		for (int res = 2; ; res++)
+		{
+			if (check(res))
+			{
+				printf("Case #%d: %d\n", t_case, res);
+				break;
+			}
+		}
+	}
+	return 0;
+}

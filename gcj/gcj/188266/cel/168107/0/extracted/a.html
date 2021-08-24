@@ -1,0 +1,92 @@
+<style>
+textarea { width: 100%; height: 47%; }
+div { text-align: center; height: 6%; }
+</style>
+
+<textarea id="input"></textarea>
+<div>&darr; <button id="solveBtn">I hope this works</button> &darr;</div>
+<textarea id="output"></textarea>
+
+<script>
+var inputLines, inputLine, outputLines, outputLine;
+
+function readLine() {
+	return inputLines[inputLine++];
+}
+
+function printLine(line) {
+	outputLines[outputLine++] = line;
+}
+
+document.getElementById("solveBtn").onclick = function () {
+	inputLines = document.getElementById("input").value.split("\n");
+	inputLine = 0;
+	outputLines = [];
+	outputLine = 0;
+	
+	solve();
+	
+	output = outputLines.join("\n");
+	document.getElementById("output").value = output;
+}
+
+/* ------------------------------------ */
+
+var j = 0;
+function getDigits(n, base) {
+	j++;
+	if (j>1000000) {
+		debugger;
+		return;
+	}
+	
+	var digits = [];
+	var pow = 1;
+	while (pow <= n) {
+		var pow2 = pow * base;
+		digits.unshift( ((n % pow2) - (n % pow)) / pow);
+		pow = pow2;
+	}
+	return digits;
+}
+
+function isHappy(n, base) {
+	var alreadyChecked = {};
+	
+	while (!alreadyChecked[n]) {
+		var digits = getDigits(n, base);
+		var sum = 0;
+		for (var i=0, l=digits.length; i<l; i++) {
+			var digit = digits[i];
+			sum += digit*digit;
+		}
+		alreadyChecked[n] = true;
+		n = sum;
+	}
+	return (n === 1);
+}
+
+function solve () {
+	var T = readLine(0); // number of test cases
+	
+	for (var t=0; t<T; t++) {
+		
+		var bases = readLine().split(" ");
+		var K;
+		
+		for (var n = 2; n++; n<100) {
+			
+			if (bases.every(function (b) { return isHappy(n, b) })) {
+				K = n;
+				break;
+			}
+			
+		}
+		
+		var X = t+1;
+		printLine("Case #"+X+": "+K);
+		
+	}
+}
+
+</script>

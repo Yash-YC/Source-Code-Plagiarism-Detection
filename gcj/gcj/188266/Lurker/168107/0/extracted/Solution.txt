@@ -1,0 +1,258 @@
+  private void SolveHappyNumber(string inFileName)
+        {
+            InputOutput io = new InputOutput(inFileName);
+            HappyNumberSolver hns = new HappyNumberSolver();
+
+            foreach (string s in hns.SolveFile(inFileName, 1))
+            {
+                lstOutput.Items.Add(s);
+            }
+        }
+
+class HappyNumberSolver:Solver
+    {
+        char[] SEPARATOR = new char[] { ' ' };
+
+        protected override string[] GetCase(int caseStart, ref int caseEnd)
+        {
+            if (caseStart >= Ins.Length) return null;
+            string[] curCase = new string[] { Ins[caseStart] };
+            caseEnd = caseStart;
+            return curCase;
+        }
+
+        public override string[] SolveCase(string[] caseIn, int caseNumber)
+        {
+            //System.Windows.Forms.MessageBox.Show(IsHappy(3, 2).ToString());
+            //return caseIn;
+            string [] strBases = caseIn[0].Split(SEPARATOR);
+            int[] bases = new int[strBases.Length];
+
+            for (int i = 0; i < strBases.Length; i++)
+                bases[i] = Convert.ToInt32(strBases[i]);
+
+            for (int i = 2; true; i++)
+            {
+                bool allHappy = true;
+                foreach (int b in bases)
+                {
+                    if(!IsHappy(i,b))
+                    {
+                        allHappy = false;
+                    }
+                }
+               if (allHappy) return new string[] {"Case #" + caseNumber.ToString()+ ": " +  i.ToString() };
+            }
+
+            
+                        
+        }
+
+        private bool IsHappy(int x, int b)
+        {
+            int numInBaseB = Convert.ToInt32(AlienNumbers.Convert(x.ToString(), Language(10), Language(b)));
+                       
+            List<int> seen = new List<int>();
+            while (!seen.Contains(numInBaseB))
+            {
+                seen.Add(numInBaseB);
+                numInBaseB = Convert.ToInt32(AlienNumbers.Convert(GetSumOfSquaresOfDigits(numInBaseB).ToString(), Language(10), Language(b)));
+                if (numInBaseB == 1) return true;
+            }
+            return false;
+        }
+
+       
+
+        private int GetSumOfSquaresOfDigits(int x)
+        {
+            int sumOfSquares = 0;
+            while (x > 0)
+            {
+                int d = x % 10;
+                sumOfSquares += d * d;
+                x /= 10;
+            }
+            return sumOfSquares;
+        }
+
+        private string Language(int bas)
+        {
+            string b = "";
+            for (int i = 0; i < bas; i++)
+                b += i.ToString();
+            return b;
+
+        }
+    }
+
+class InputOutput
+    {
+        string inFileName;
+        string outFileName;
+        string[] ins;
+        
+
+        public string[] Ins
+        {
+            get { return ins; }
+        }
+
+        bool error;
+
+        public InputOutput(string inFileName)
+        {
+            this.inFileName = inFileName;
+            try
+            {
+                ins = File.ReadAllLines(inFileName);
+                outFileName = Directory.GetParent(inFileName)+Path.DirectorySeparatorChar.ToString() + Path.GetFileNameWithoutExtension(inFileName) + ".out";
+            }
+            catch (Exception ex)
+            {
+                error = true;
+                return;
+            }
+        }
+
+        public int InCount
+        {
+            get { return ins.Length; }
+        }
+
+        public void WriteOutput(string [] outs)
+        {
+            File.Create(outFileName).Close();
+            File.WriteAllLines(outFileName, outs);
+        }
+    }
+
+public abstract class Solver
+    {
+        string[] ins;
+
+        protected string[] Ins
+        {
+            get { return ins; }
+        }
+
+        public string[] SolveFile(string inFileName, int insToIngnore)
+        {
+            //Read File
+            InputOutput io = new InputOutput(inFileName);
+            ins = new string[io.Ins.Count() - insToIngnore];
+
+            for (int i = insToIngnore; i < io.Ins.Length; i++)
+                ins[i - insToIngnore] = io.Ins[i];
+
+            //Solve cases
+            int caseStart = 0;
+            int caseEnd = 0;
+            List<string> outs = new List<string>();
+
+            int caseCount = 0;
+
+            string[] curCase = GetCase(caseStart, ref caseEnd);
+            while (curCase != null)
+            {
+                caseCount++;
+                string[] o = SolveCase(curCase, caseCount);
+                foreach (string s in o)
+                    outs.Add(s);
+                caseStart = caseEnd+1;
+                curCase = GetCase(caseStart, ref caseEnd);
+            }
+
+            //Write Output
+    
+            io.WriteOutput(outs.ToArray());
+
+            //Return output
+            return outs.ToArray();
+
+        }
+
+        protected abstract string[] GetCase(int caseStart, ref int caseEnd);
+
+        public abstract string[] SolveCase(string[] caseIn, int caseNumber);
+    }
+
+class AlienNumbersSolver:Solver
+    {
+        protected override string[] GetCase(int caseStart, ref int caseEnd)
+        {
+            if (caseStart >= Ins.Length) return null;
+            string[] curCase = new string[] {Ins[caseStart]};
+            caseEnd = caseStart;
+            return curCase;
+        }
+
+        public override string[] SolveCase(string[] caseIn, int caseNumber)
+        {
+            char[] separator = new char[] { ' ' };
+            string[] input = caseIn[0].Split(separator);
+            return new string[] { "Case #" + caseNumber.ToString() + ": " + AlienNumbers.Convert(input[0], input[1], input[2])};
+        }
+    }
+
+    class AlienNumbers
+    {
+        string numerals;
+
+        Dictionary<char, int> digitValues;
+        char[] digits;
+
+        int radix;
+
+        public AlienNumbers(string numerals)
+        {
+            this.numerals = numerals;
+            digitValues = new Dictionary<char, int>();
+            digits = new char[numerals.Length];
+
+            int count = 0;
+            foreach (char c in numerals)
+            {
+                digits[count] = c;
+                digitValues.Add(c, count++);
+            }
+
+            radix = numerals.Length;
+        }
+
+        public int ToDecimal(string number)
+        {
+
+            int result = 0;
+            int face = number.Length - 1;
+
+            foreach (char digit in number)
+            {
+                result += digitValues[digit] * (int)Math.Pow(radix, face);
+                face--;
+            }
+            return result;
+
+        }
+
+        public string FromDecimal(int number)
+        {
+            string result = "";
+
+            while (number > 0)
+            {
+                int rem = number % radix;
+                number = (int)number / radix;
+                result = digits[rem] + result;
+            }
+            return result;
+        }
+
+        public static string Convert(string input, string from, string to)
+        {
+            AlienNumbers sourceLanguage = new AlienNumbers(from);
+            AlienNumbers targetLanguage = new AlienNumbers(to);
+
+            return targetLanguage.FromDecimal(sourceLanguage.ToDecimal(input));
+        }
+    }

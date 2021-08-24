@@ -1,0 +1,125 @@
+Module Module1
+
+    Sub Main()
+        'Dim fs As New System.IO.FileStream("testin.txt", IO.FileMode.Open)
+        'Dim fr As New System.IO.StreamReader(fs)
+        'Console.SetIn(fr)
+
+        Dim tc As Integer
+        Dim nn As New num_of_base
+        Dim ins() As String
+        Dim num_to_check As Integer = 1
+
+        Dim all_happy As Boolean
+
+        tc = Console.ReadLine
+
+        For i = 1 To tc
+            all_happy = False
+            ins = Split(Console.ReadLine(), " ")
+            num_to_check = 1
+
+            Do
+                num_to_check = num_to_check + 1
+
+                For l = 0 To ins.Length - 1
+                    If is_happy_in(num_to_check, ins(l)) Then
+                        all_happy = True
+                    Else
+                        all_happy = False
+                        Exit For
+                    End If
+                Next
+
+            Loop Until all_happy
+
+            Console.WriteLine("Case #" & i & ": " & num_to_check)
+
+        Next
+
+
+
+
+
+    End Sub
+    Public Function is_happy_in(ByVal num_as_dec As Integer, ByVal base As Integer) As Boolean
+        Dim found_repeat As Boolean = False
+        Dim prev_results(1) As Integer
+        Dim nn As New num_of_base
+        Dim temp As Integer
+        Dim res_count As Integer = -1
+        Dim temp_s As String = ""
+        nn.value_as_dec = num_as_dec
+        nn.set_num_base(base)
+
+
+
+        Do
+            temp = 0
+            temp_s = nn.get_value_string
+
+            For k = 1 To Len(temp_s)
+                temp = Int(Mid(temp_s, k, 1)) ^ 2 + temp
+            Next
+
+            For m = 0 To prev_results.Length - 1
+                If prev_results(m) = temp Then
+                    found_repeat = True
+                    Return False
+                End If
+            Next
+
+            nn.value_as_dec = temp
+
+            res_count = res_count + 1
+            ReDim Preserve prev_results(res_count)
+            prev_results(res_count) = temp
+
+        Loop Until found_repeat Or temp = 1
+
+
+        Return True
+
+
+
+    End Function
+    Public Class num_of_base
+        Public value_as_dec = 0
+        Private num_base As Integer
+        Public Sub set_num_base(ByVal base As Integer)
+            num_base = base
+        End Sub
+        Public Function get_value_string() As String
+            Dim place_value As Integer
+            Dim num_val As Integer
+            Dim place As Integer = 0
+            Dim new_num As String = ""
+            Dim p_val As Integer = 0
+
+            num_val = value_as_dec
+
+            Do
+                place_value = num_base ^ place
+                If place_value <= num_val Then
+                    place = place + 1
+                End If
+            Loop While place_value <= num_val
+
+            place = place - 1
+
+            Do
+                p_val = Int(num_val / num_base ^ place)
+                num_val = num_val - (p_val * num_base ^ place)
+                new_num = new_num & p_val
+                place = place - 1
+            Loop Until place = -1
+
+            get_value_string = new_num
+
+        End Function
+       
+        Public Sub increment()
+            value_as_dec = value_as_dec + 1
+        End Sub
+    End Class
+End Module

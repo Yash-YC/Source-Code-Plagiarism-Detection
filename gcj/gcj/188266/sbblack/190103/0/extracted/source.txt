@@ -1,0 +1,43 @@
+Module Module1
+
+    Sub Main()
+        'Dim fs As New System.IO.FileStream("smallin.txt", IO.FileMode.Open)
+        'Dim fr As New System.IO.StreamReader(fs)
+        'Console.SetIn(fr)
+
+        Dim tc As Integer
+        Dim ins() As String
+        Dim c As Integer
+        Dim n As Integer
+        Dim packs As Double
+
+        Dim combins As Long
+
+        tc = Console.ReadLine
+
+        For i = 1 To tc
+            ins = Split(Console.ReadLine(), " ")
+
+            c = ins(0)
+            n = ins(1)
+
+            combins = factorial(c) / (factorial(n) * factorial(c - n))
+
+            packs = combins / (c - 1) + 1
+
+            Console.WriteLine("Case #" & i & ": " & packs)
+        Next
+
+
+    End Sub
+    Public Function factorial(ByVal n As Integer)
+        Dim ftal As Long = 1
+        If n = 0 Then Return 1
+        Do
+            ftal = ftal * n
+            n = n - 1
+        Loop Until n < 1
+
+        factorial = ftal
+    End Function
+End Module

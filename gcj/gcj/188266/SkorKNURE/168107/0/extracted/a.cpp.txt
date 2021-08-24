@@ -1,0 +1,99 @@
+#include <iostream>
+#include <algorithm>
+#include <numeric>
+#include <vector>
+#include <queue>
+#include <list>
+#include <stack>
+#include <string>
+#include <fstream>
+#include <math.h>
+#include <limits>
+#include <set>
+#include <map>
+#include <sstream>
+#include <stdio.h>
+#include <time.h>
+#include <memory.h>
+using namespace std;
+
+#define ALL(ar)       (ar).begin(),(ar).end()
+#define SZ(a)         int((a).size())
+#define MP(a,b)       make_pair(a,b)
+#define INF           0x7f7f7f7f
+typedef long long     LL;
+typedef vector<int>   VI;
+typedef pair<int,int> II;
+
+int T;
+char buf[1<<16];
+VI mul;
+bool dp[10000];
+
+bool happy (int _i, int _b, int _deep)
+{
+	if (_deep == 1000) return false;
+	static int k[1000], len;
+	len = 0;
+	int c1 = 0, cn0 = 0;
+	while (_i) {
+		k[len++] = _i % _b;
+		_i /= _b;
+		if (k[len-1] == 1) c1++;
+		else if (k[len-1] != 0) cn0++;
+	}
+	if (!cn0 && c1 == 1) return true;
+	int all = 0;
+	for (int i = 0; i < len; i++)
+		all += k[i]*k[i];
+	if (dp[all]) return false;
+	dp[all] = true;
+	return happy (all, _b, _deep+1);
+}
+
+int main()
+{
+	freopen("in.in", "rt", stdin);
+	//freopen("out.out", "wt+", stdout);
+
+	scanf ("%d\n", &T);
+	map<VI, int> cache;
+	for (int tc = 0; tc < T; tc++)
+	{
+		int d, ans = 0;
+		gets (buf);
+		stringstream ss (buf);
+		mul.clear();
+		while (ss >> d)
+			mul.push_back (d);
+		ans = 2;
+		VI mul2;
+		for (int i = 0; i < SZ(mul); i++) {
+			if (i && mul[i] == mul[i-1]) continue;
+			mul2.push_back (mul[i]);
+		}
+		if (cache.find(mul2) != cache.end()) {
+			ans = cache.find(mul2)->second;
+		}
+		else {
+			while (true)
+			{
+				bool h = true;
+				for (int i = 0; i < SZ(mul2); i++)
+				{
+					memset (dp, 0, sizeof (dp));
+					if (!happy (ans, mul2[i], 0)) {
+						h = false; break;
+					}
+				}
+				if (h)
+					break;
+				ans++;
+			}
+			cache.insert(MP(mul2, ans));
+		}
+		printf ("Case %d: %d\n", tc+1, ans);
+	}
+
+	return 0;
+}

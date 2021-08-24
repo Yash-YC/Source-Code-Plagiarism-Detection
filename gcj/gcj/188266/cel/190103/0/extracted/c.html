@@ -1,0 +1,50 @@
+<style>
+textarea { width: 100%; height: 47%; }
+div { text-align: center; height: 6%; }
+</style>
+
+<textarea id="input"></textarea>
+<div>&darr; <button id="solveBtn">I hope this works</button> &darr;</div>
+<textarea id="output"></textarea>
+
+<script>
+var inputLines, inputLine, outputLines, outputLine;
+
+function readLine() {
+	return inputLines[inputLine++];
+}
+
+function printLine(line) {
+	outputLines[outputLine++] = line;
+}
+
+document.getElementById("solveBtn").onclick = function () {
+	inputLines = document.getElementById("input").value.split("\n");
+	inputLine = 0;
+	outputLines = [];
+	outputLine = 0;
+	
+	solve();
+	
+	output = outputLines.join("\n");
+	document.getElementById("output").value = output;
+}
+
+/* ------------------------------------ */
+
+function solve () {
+	var T = readLine();
+	// for each test cases
+	for (var t=0; t<T; t++) {
+		
+		var z = readLine().split(" ");
+		var C = ~~z[0];
+		var N = ~~z[1];
+
+		var E = (C+N)/N;
+		var X = t+1;
+		printLine("Case #"+X+": "+E);
+	}
+}
+
+</script>

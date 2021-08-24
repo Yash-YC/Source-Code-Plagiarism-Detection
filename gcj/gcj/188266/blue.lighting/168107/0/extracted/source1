@@ -1,0 +1,127 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package google;
+import java.io.*;
+import java.math.*;
+import java.util.Arrays;
+
+/**
+ *
+ * @author Hengky Budiman
+ */
+public class HappyNumber {
+    int T;
+    int[] base;
+    boolean[][] checking;
+    public long magn(int i){
+        long result = 1;
+        for(int j=0;j<i;j++){
+            result *=10;
+        }
+        return result;
+    }
+    
+    public long toBase(long a, int b){
+        long result =0;
+        int i=0;
+        
+        while(a>0){
+            result += (a % b)*magn(i);
+            a -= (a%b);
+            a /= b;
+            i++;                  
+        }
+        return result;
+    }
+    
+    public long proses(long x, int b){
+        long result=0;
+        while(x>0){
+            result += (x%10) * (x%10);
+            x/=10;
+        }
+        result = toBase(result,b);
+        return result;
+    }
+    
+    public void search(){
+        try{
+            FileInputStream fstream = new FileInputStream("A-small.in");
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine = br.readLine();
+            String[] bufferString;
+            T = Integer.parseInt(strLine);
+            int i,j,k,l;
+            for(i = 0;i<T;i++){
+                strLine = br.readLine();
+                bufferString = strLine.split(" ");
+                base = new int[bufferString.length];
+                checking = new boolean[bufferString.length][];
+                for(j=0;j<bufferString.length;j++){
+                    base[j]=Integer.parseInt(bufferString[j]);
+                    checking[j]= new boolean[base[j]*10+base[j]];
+                }
+                boolean isHappyNumber;
+                boolean hasFound = false;
+                boolean notHappyNumber =false;
+                
+                long number = 2;
+                long numberBase;
+                while(!hasFound){
+                    for(k=0;k<base.length;k++){
+                        Arrays.fill(checking[k], false);
+                        numberBase = toBase(number, base[k]);
+                        isHappyNumber = false;
+                        notHappyNumber = false;
+                        while(!isHappyNumber && !notHappyNumber ){
+                            //System.out.println("number = "+number);
+                            //System.out.println("base "+base[k]+" "+numberBase);
+                            if(numberBase < (base[k]*10+base[k])){
+                                if(numberBase == 1){
+                                    isHappyNumber = true;
+                                }
+                                else{
+                                    if(checking[k][(int)numberBase]){
+                                        notHappyNumber = true;
+                                    }
+                                    else{
+                                        checking[k][(int)numberBase]=true;
+                                        numberBase = proses(numberBase, base[k]);
+                                    }
+                                }
+                            }
+                            else{
+                                numberBase = proses(numberBase, base[k]);
+                            }
+                        }
+                        if(notHappyNumber){
+                            break;
+                        }
+                    }
+                    if(!notHappyNumber){
+                        hasFound = true;
+                    }
+                    else{
+                        number++;
+                    }
+                }
+                System.out.println("Case #"+(i+1)+": "+number);
+            }
+
+            in.close();
+        }catch (IOException e){
+          System.err.println("Error: " + e.getMessage());
+        }    
+        
+    }
+    public static void main(String[] args) {
+        HappyNumber s = new HappyNumber();
+        //System.out.println("asdf = "+s.magn(1));
+        s.search();
+    }
+
+}

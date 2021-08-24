@@ -1,0 +1,35 @@
+#include<iostream>
+#include<string.h>
+int main()
+{
+ using namespace std;
+ int  i,j,l,t,x=1;                                                                                   
+ char a[1000],c;
+ cin>>t;
+ while(x<=t)
+ {
+ char s[1000]={};
+  cin>>a;
+	l=strlen(a);
+  c=a[0];
+  s[0]=c;
+  for(i=1;i<l;i++)
+  {
+	if(a[i]>=c)
+	{
+		for(j=i;j>=0;j--)
+		{
+		 s[j+1]=s[j];
+		}
+		s[0]=a[i];
+		c=s[0];
+	}
+	else
+		s[i]=a[i];
+  }
+ cout<<"Case #"<<x++<<": "<<s<<endl;
+}
+return 0;
+
+	
+}

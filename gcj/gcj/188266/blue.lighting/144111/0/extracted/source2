@@ -1,0 +1,152 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package google;
+import java.io.*;
+
+/**
+ *
+ * @author Hengky Budiman
+ */
+public class crossingRoad {
+    int T;
+    int N,M;
+    int[][] S,W,Ti;
+    
+    public int waitFor(int x, int y, int detik, int kode){
+        int detikLampu, detikNow, basis;
+        int atas, kanan, waktu;
+        atas = S[N-1-y][x];
+        kanan = W[N-1-y][x];
+        waktu = Ti[N-1-y][x];
+        
+        basis = atas + kanan;
+        detikLampu = waktu % basis;
+        detikNow = detik % basis;
+        
+        if(detikLampu > detikNow){
+            detikLampu -=basis;
+        }
+        
+        if(kode == 1){
+            if(detikNow < detikLampu + atas){
+                return 0;
+            }
+            else{
+                return basis + detikLampu - detikNow;
+            }
+        }
+        else{
+            if(detikNow >= detikLampu + atas){
+                return 0;
+            }
+            else{
+                return detikLampu + atas - detikNow;
+            }
+        }
+    }
+    
+    public int minDistance(int x, int y, boolean northIsBlock, boolean westIsBlock, int detikNow){
+        int atas, kanan;
+        int i;
+        int tunggu;
+        
+        atas = 0;
+        kanan = 0;
+        
+        if(x==M && y == N){
+            return 0;
+        }
+        
+        if(y!=N){
+            if(northIsBlock){
+                atas = 2 + minDistance(x, y, !northIsBlock, westIsBlock, detikNow+2);
+            }
+            else{
+                if(westIsBlock){
+                    tunggu = waitFor(x-1, y, detikNow, 1);
+                }
+                else{
+                    tunggu = waitFor(x, y, detikNow, 1);
+                }
+                tunggu++;
+                atas = tunggu + minDistance(x, y+1, !northIsBlock, westIsBlock, detikNow +tunggu );                
+            }
+        }
+        else{
+            atas = 99999999;
+        }
+        
+        if(x!=M){
+            if(westIsBlock){
+                kanan = 2 + minDistance(x, y, northIsBlock, !westIsBlock, detikNow+2);
+            }
+            else{
+                if(northIsBlock){
+                    tunggu = waitFor(x, y-1, detikNow, 2);
+                }
+                else{
+                    tunggu = waitFor(x, y, detikNow, 2);
+                }
+                tunggu++;
+                kanan = tunggu + minDistance(x+1, y, northIsBlock, !westIsBlock, detikNow +tunggu );
+            }
+        }
+        else{
+            kanan = 99999999;
+        }
+        
+        if(atas> kanan){
+            return kanan;
+        }
+        else{
+            return atas;
+        }
+    }
+    public void count(){
+        try{
+            FileInputStream fstream = new FileInputStream("B-small.in");
+            DataInputStream in = new DataInputStream(fstream);
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            String strLine = br.readLine();
+            String[] bufferString;
+            T = Integer.parseInt(strLine);
+            int i,j,k,l;
+            for(i = 0;i<T;i++){
+                strLine = br.readLine();
+                bufferString = strLine.split(" ");
+                N = Integer.parseInt(bufferString[0]);
+                M = Integer.parseInt(bufferString[1]);
+                
+                S = new int[N][M];
+                W = new int[N][M];
+                Ti = new int[N][M];
+                
+                for(j=0;j<N;j++){
+                    strLine = br.readLine();
+                    bufferString = strLine.split(" ");
+                    for(k=0;k<M;k++){
+                        S[j][k]=Integer.parseInt(bufferString[k*3]);
+                        W[j][k]=Integer.parseInt(bufferString[k*3 + 1]);
+                        Ti[j][k]=Integer.parseInt(bufferString[k*3 +2]);
+                    }
+                }
+                
+                System.out.println("Case #"+(i+1)+": "+minDistance(0, 0, false, false, 0));
+                
+            }
+
+            in.close();
+        }catch (IOException e){
+          System.err.println("Error: " + e.getMessage());
+        }    
+    }
+    
+    public static void main(String[] args) {
+        crossingRoad s = new crossingRoad();
+        s.count();
+    }
+
+}

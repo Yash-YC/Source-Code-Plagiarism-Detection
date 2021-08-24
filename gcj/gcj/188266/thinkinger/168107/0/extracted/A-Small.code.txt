@@ -1,0 +1,94 @@
+Imports System
+Imports System.IO
+Imports System.Text
+Imports System.Math
+Imports System.Array
+
+
+Module A
+
+    Sub Main()
+        Dim iCase As Long, iP As Long, arrRst() As Long
+        Dim arrBase() As Long
+        Dim arrTemp() As String, strTemp As String
+
+
+        Using rs As New StreamReader("../../../A-small-attempt0.in")
+            iCase = rs.ReadLine
+            ReDim arrRst(iCase)
+            For iP = 1 To iCase
+                arrTemp = Split(rs.ReadLine, " ")
+                ReDim arrBase(UBound(arrTemp))
+                For i As Long = 0 To UBound(arrTemp)
+                    arrBase(i) = CInt(arrTemp(i))
+                Next
+
+                arrRst(iP) = GetOutput(arrBase)
+            Next
+        End Using
+
+        Using ws As New StreamWriter("../../../A-small-attempt0.txt")
+            For iP = 1 To iCase
+                ws.WriteLine("Case #" & iP & ": " & arrRst(iP))
+            Next
+        End Using
+    End Sub
+
+    Function GetOutput(ByVal arrBase() As Long) As Long
+        Dim i, l, m, n, j, k As Long
+        Dim bHappy As Boolean
+        l = UBound(arrBase)
+        i = 2
+        Do
+            For j = 0 To l
+                n = ChangeBase(i, arrBase(j))
+                bHappy = False
+                For k = 1 To 20
+                    If Ishappy(n) Then
+                        bHappy = True
+                        Exit For
+                    Else
+                        n = ChangeBase(GetSq(n), arrBase(j))
+                    End If
+
+                Next
+                If Not bHappy Then Exit For
+            Next
+            If bHappy Then GetOutput = i : Exit Function
+            i = i + 1
+        Loop
+
+    End Function
+
+    Function GetSq(ByVal i As Long) As Long
+        Dim s As String
+        s = CStr(i)
+        For j = 1 To Len(s)
+            GetSq = GetSq + (CInt(Mid(s, j, 1))) ^ 2
+        Next
+    End Function
+    Function Ishappy(ByVal i As Long) As Boolean
+        If Len(CStr(i)) = 1 And i <> 1 Then Ishappy = False : Exit Function
+        If Left(CStr(i), 1) = "1" And CInt(Mid(CStr(i), 2)) = 0 Then
+            Ishappy = True
+        Else
+            Ishappy = False
+        End If
+    End Function
+
+    Function ChangeBase(ByVal N As Long, ByVal B As Long) As Long
+        Dim s As String
+        Dim i, j As Long
+
+        s = ""
+        i = N
+        Do
+            j = i Mod B
+            i = i \ B
+            s = "" & j & s
+        Loop While i > 0
+
+        ChangeBase = CInt(s)
+    End Function
+
+End Module

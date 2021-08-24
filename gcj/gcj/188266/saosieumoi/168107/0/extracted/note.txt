@@ -1,0 +1,63 @@
+Solve at least one problem and send me the source, input, output and the problem description. Before qualification round begin.
+If you have any problem ask me help by e-mail.
+
+1. late/absence.
+		5 000/10 000
+2. Language + English
+		2 000
+3. internet/msg
+		1 000
+
+
+Syn Sang Young
+
+ssyong30@gmail.com
+
+095 740 8960
+
+comment   on the source code which you download form code jam's websites
+
+Wednesday before 11pm
+
+
+
+resume -> interview -> interview 2() -> team work (1 week ~ 2 months) -> health test
+
+
+why hire him?
+making a project => how to solve the problem 
+
+why my company need him ?
+
+name
+what u did 
+
+self study ?
+who are yr friends ?
+yr grade ? = perfect man ?
+real project ? => ever fail ? => ...
+finish within 3 minutes
+
+it  working experience => more details => prove it
+
+personal information:
+	who i am
+	what i did, how i solve the problems: knowledge
+	what i can do?
+why i need job in yr company
+just concentrate on 1 specific hoby that connnect to yr job
+
+
+
+
+1109_01_DuongTanHung	=> subset generator
+1109_02_DuongTanHung	=> permutation iterater
+1109_03_DuongTanHung	=> tower of HaNoi
+1109_04_DuongTanHung	=> Koch snow flake
+
+
+return word.chartAt(nCurrentPosition) + tailIterater.nextPermutation();
+
+
+don't have confident + body language
+team work + how to solve it 

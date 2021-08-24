@@ -1,0 +1,107 @@
+
+#include <iostream>
+#include <vector>
+#include <algorithm>
+using namespace std;
+
+vector<int> V;
+vector<int> Ans[100];
+char buf[50000];
+int flg[50000];
+int arr[50000];
+bool visited[50000];
+void split(char * buf)
+{
+     int ans = 0;
+     int cnt = 0;
+     V.clear();
+     //Ans.clear();
+     while(buf[cnt])
+     {
+        while(isdigit(buf[cnt]))
+          ans = ans * 10 + buf[cnt++] - '0';
+        V.push_back(ans);
+        if(buf[cnt] == 0) return;
+        cnt ++;
+        ans = 0;
+     }
+}
+bool good(int value, int base)
+{
+     int cnt = 0;
+     memset(visited,0,sizeof visited);
+     while(value)
+     {
+        arr[cnt++] = value % base;
+        value /= base;
+     }
+     int sum = 0;
+     for(int i = 0;i < cnt;i++)
+       sum += arr[i] * arr[i];
+     visited[sum] = true;
+     if(sum == 1) return true;
+     value = sum;
+     while(1)
+     {
+        cnt = 0;
+        sum = 0;
+        //cnt = 0;
+        while(value)
+          arr[cnt++] = value % base, value /= base;
+        for(int i = 0;i < cnt;i++)
+           sum += arr[i] * arr[i];
+        if(sum == 1)
+          return 1;
+       // cout<<sum<<endl;
+        if(visited[sum]) return 0;
+        visited[sum] = 1;
+        value = sum;
+     }
+}
+void func(int index)
+{
+     for(int i = 2;i <= 50000;i++)
+     {
+       // memset(visited,0,sizeof visited);
+        if(good(i,V[index]))
+        {
+          flg[i] ++;
+          // return ;
+        }
+     }
+    
+}
+
+int main()
+{
+    int t;
+    freopen("in.txt","r",stdin);
+    freopen("out.txt","w",stdout);
+    scanf("%d",&t);
+    getchar();
+    int cnt = 0;
+    while(t --)
+    {
+        gets(buf);
+        split(buf);   
+        memset(flg,0,sizeof flg);
+       // for(int i = 0;i < V.size();i++) cout<<V[i]<<' '; //while(true);
+        for(int i = 0;i < V.size();i++)
+        {
+         // Ans[i].clear();
+          func(i);
+        }
+        int res = 0;
+     //   cout<<V.size()<<endl;
+        for(int i = 2;i;i++) 
+        {
+           if(flg[i] == V.size())
+            {
+              res = i;
+              break;
+            }
+        }
+        printf("Case #%d: %d\n",++cnt,res);
+    }
+    return 0;
+}

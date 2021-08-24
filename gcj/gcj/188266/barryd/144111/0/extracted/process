@@ -1,0 +1,260 @@
+#!perl
+
+use strict;
+use warnings;
+
+=pod
+
+11:25: I read this question... it seems it's at least as challenging as the first.  I guess there are no really easy questions this time.
+11:28: Not sure what representation to use... should I double the grid size to account for the block/street architecture?
+11:30: Max grid size is 20x20.  Okay, if we assume we never walk west or south, then we should be able to find the shortest route to a particular grid square based on the shortest route to the grid squares to the left and south.  But... I think with arbitrary lights like that, it's quite possible for an optimal path to require travel west and/or south.  Darn.  Otherwise this would now boil down to a reasonably straightforward dynamic programming problem.
+
+11:36: Maybe I'll just do one that only travels northeast, and hope that's what they were thinking when they made the problem and the test data.
+I'll reverse the north/south axis on input so I can work from 0 up in all cases.
+
+Based on a diagram, it seems I need exactly 2 rows/columns for each street.
+
+12:26: My results aren't correct for the sample input.  Debugging.
+12:28: Okay, debugged.  I was returning the time for the move, instead of the total time since the beginning.  Now my code works on the sample.
+I only travel north and/or east.  If that's not a problem, I think my code should be good.  I'll try it on the small data set.
+
+12:32: Incorrect...
+12:37: Maybe I'm being a bit bold, but I'm going to assume the problem is lack of west/south travel, and add that in by additional passes.
+
+
+
+
+=cut
+
+use List::Util qw(min sum);
+
+
+process();
+
+exit 0;
+
+################################################################################
+
+sub process {
+	my ($cases) = getTokens();
+	for my $case (1..$cases) {
+		processCase($case);
+	}
+}
+
+sub processCase {
+	my ($case) = @_;
+	
+	my ($n, $m) = getTokens();
+	
+	my $lights = [];
+	
+	for my $i (0..($n-1)) {
+		my @line = getTokens();
+		for my $j (0..($m-1)) {
+			# reverse the vertical direction
+			$lights->[($n-1)-$i][$j] = makeLight(splice(@line, 0, 3));
+		}
+	}
+	
+	# calculate time of fastest route
+	my $times = [];
+	
+	# probably would have been nicer to set up an entire row and column pre-initted (eg. with high number) and avoid conditionals in the loop...
+	
+	for my $i (0..($n*2-1)) {
+		for my $j (0..($m*2-1)) {
+			$times->[$i][$j] = 1<<31;	# big number
+		}
+	}
+	$times->[0][0] = 0;
+	
+	
+	while (1) {
+		# repeat until no change
+		dopass($m, $n, $lights, $times) or last;
+	}
+	
+	if (0) {
+		for my $i (0..($n*2-1)) {
+			for my $j (0..($m*2-1)) {
+				printf("%4d", $times->[$i][$j]);
+			}
+			print "\n";
+		}
+	}
+	
+	my $travelTime = $times->[$n*2-1][$m*2-1];
+	
+	printf("Case #%d: %d\n", $case, $travelTime);
+}
+
+sub dopass {
+	my ($m, $n, $lights, $times) = @_;
+	
+	my $changed = 0;
+	
+	for my $i (0..($n*2-1)) {
+		for my $j (0..($m*2-1)) {
+			my @options = ();
+			if ($i > 0) {
+				# from south
+				push @options, fromSouth($lights, $times, $i,$j);
+			}
+			if ($j > 0) {
+				# from west
+				push @options, fromWest($lights, $times, $i,$j);
+			}
+			if ($i < ($n*2-1)) {
+				# from north
+				push @options, fromNorth($lights, $times, $i,$j);
+			}
+			if ($j < ($m*2-1)) {
+				# from east
+				push @options, fromEast($lights, $times, $i,$j);
+			}
+			# @options should have an element if we aren't in bottom-left corner
+			if (@options) {
+				my $smallest = min(@options);
+				if ($smallest < $times->[$i][$j]) {
+					$times->[$i][$j] = $smallest;
+					$changed = 1;
+				}
+			}
+		}
+	}
+	
+	return $changed;
+}
+
+sub fromSouth {
+	my ($lights, $times, $i, $j) = @_;
+	
+	my $start = $times->[$i-1][$j];
+	
+	if ($i%2) {
+		# $i is odd
+		# cross street
+		my $light = $lights->[int($i/2)][int($j/2)];
+		my $cpos = ($start - $light->{t}) % $light->{cycle};
+		
+		if ($cpos < $light->{s}) {
+			return $start + 1;
+		}
+		else {
+			# wait for light then cross
+			return $start + ($light->{cycle} - $cpos) + 1;
+		}
+	}
+	else {
+		# move along side of block
+		return $start + 2;
+	}
+}
+
+sub fromWest {
+	my ($lights, $times, $i, $j) = @_;
+	
+	my $start = $times->[$i][$j-1];
+	
+	if ($j%2) {
+		# $j is odd
+		# cross street
+		my $light = $lights->[int($i/2)][int($j/2)];
+		
+		# for travel from west, we shift the cycle by $light->{s}
+		# so beginning of cycle is the time we can cross
+		my $cpos = ($start - $light->{t} - $light->{s}) % $light->{cycle};
+		
+		if ($cpos < $light->{w}) {
+			return $start + 1;
+		}
+		else {
+			# wait for light then cross
+			return $start + ($light->{cycle} - $cpos) + 1;
+		}
+	}
+	else {
+		# move along side of block
+		return $start + 2;
+	}
+}
+
+sub fromNorth {
+	my ($lights, $times, $i, $j) = @_;
+	
+	my $start = $times->[$i+1][$j];
+	
+	if (!($i%2)) {
+		# $i is even
+		# cross street
+		my $light = $lights->[int($i/2)][int($j/2)];
+		my $cpos = ($start - $light->{t}) % $light->{cycle};
+		
+		if ($cpos < $light->{s}) {
+			return $start + 1;
+		}
+		else {
+			# wait for light then cross
+			return $start + ($light->{cycle} - $cpos) + 1;
+		}
+	}
+	else {
+		# move along side of block
+		return $start + 2;
+	}
+}
+
+sub fromEast {
+	my ($lights, $times, $i, $j) = @_;
+	
+	my $start = $times->[$i][$j+1];
+	
+	if (!($j%2)) {
+		# $j is even
+		# cross street
+		my $light = $lights->[int($i/2)][int($j/2)];
+		
+		# for travel from west, we shift the cycle by $light->{s}
+		# so beginning of cycle is the time we can cross
+		my $cpos = ($start - $light->{t} - $light->{s}) % $light->{cycle};
+		
+		if ($cpos < $light->{w}) {
+			return $start + 1;
+		}
+		else {
+			# wait for light then cross
+			return $start + ($light->{cycle} - $cpos) + 1;
+		}
+	}
+	else {
+		# move along side of block
+		return $start + 2;
+	}
+}
+
+sub makeLight {
+	my ($s, $w, $t) = @_;
+	
+	return {
+		cycle	=> $s + $w,
+		s	=> $s,
+		w	=> $w,
+		t	=> $t,
+	};
+}
+
+################################################################################
+
+
+
+################################################################################
+
+sub getTokens { grep { length($_) } split /\s+/, <> }
+
+################################################################################
+
+
+
+
+

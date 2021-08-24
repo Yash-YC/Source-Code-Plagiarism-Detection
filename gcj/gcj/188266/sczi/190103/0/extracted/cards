@@ -1,0 +1,7 @@
+#!/usr/bin/perl
+
+$T=<>;
+for(1..$T) {
+    ($C,$N)=split / /,<>;
+    print "Case #1: ",($C/$N+1),"\n";
+}
