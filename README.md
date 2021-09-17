@@ -25,13 +25,6 @@ To implement this project we used dataset from GOOGLE CODE JAM which contains lo
 
 - To run this project double click on ‘run.bat’ file to get below screen
 
-<<<<<<< HEAD
-![](Screenshot/ss1.png)
-=======
 ![Text](Screenshot/ss1.png)
 
-
-
-
->>>>>>> f503e05a0845d99901a3816de5ac3de998a48f17
 
